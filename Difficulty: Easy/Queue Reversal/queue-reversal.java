@@ -1,16 +1,10 @@
 class Solution {
-    // Function to reverse the queue.
-    public Queue<Integer> reverseQueue(Queue<Integer> queue) {
-        // code here.
-        Stack<Integer> stack = new Stack<>();
-        
-        while(!queue.isEmpty()){
-            stack.push(queue.poll());
-        }
-        
-        while(!stack.isEmpty()){
-            queue.offer(stack.pop());
-        }
-        return queue;
+    public void reverseQueue(Queue<Integer> q) {
+        // code here
+        int n=q.size();
+        if(q.isEmpty()) return;
+        int top=q.poll();
+        reverseQueue(q);
+        q.offer(top);
     }
 }
