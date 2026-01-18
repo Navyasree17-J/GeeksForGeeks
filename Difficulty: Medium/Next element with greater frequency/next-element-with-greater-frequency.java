@@ -1,32 +1,25 @@
 class Solution {
-    public ArrayList<Integer> findGreater(int[] arr) {
+    public ArrayList<Integer> nextFreqGreater(int[] arr) {
         // code here
-        Map<Integer,Integer> freq = new HashMap<>();
-        ArrayList<Integer> ans = new ArrayList<>(Collections.nCopies(arr.length, 0));
-        
-        for (int num : arr)
-        {
-            freq.put(num, freq.getOrDefault(num, 0) + 1);
+        int n = arr.length;
+        ArrayList<Integer> result = new ArrayList<>();
+        for(int i=0;i<n;i++) {
+            result.add(-1);
         }
-        
-        Stack<Integer> st = new Stack<>();
-        for(int i = arr.length-1;i>=0;i--)
-        {
-            while (!st.isEmpty() && freq.get(st.peek()) <= freq.get(arr[i]))
-            {
-                st.pop();
-            }
-            
-            if(st.empty())
-            {
-                ans.set(i, -1);
-            }
-            else{
-                ans.set(i, st.peek());
-            }
-            st.push(arr[i]);
+        Stack<Integer> s1 = new Stack<>();
+        Map<Integer, Integer> m1 = new HashMap<>();
+        for(int i=0;i<n;i++) {
+            m1.put(arr[i], m1.getOrDefault(arr[i], 0) + 1);
         }
-        
-        return ans;
+        for(int i=n-1;i>=0;i--) {
+            while(!s1.isEmpty() && m1.get(arr[s1.peek()])<=m1.get(arr[i])) {
+                s1.pop();
+            }
+            if(!s1.isEmpty()) {
+                result.set(i, arr[s1.peek()]);
+            }
+            s1.push(i);
+        }
+        return result;
     }
 }
