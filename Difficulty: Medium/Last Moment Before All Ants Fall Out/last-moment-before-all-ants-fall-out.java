@@ -1,21 +1,9 @@
 class Solution {
     public int getLastMoment(int n, int left[], int right[]) {
         // code here
-        int maxleft=Integer.MIN_VALUE;
-        for(int i=0;i<left.length;i++)
-        {
-            maxleft=Math.max(maxleft,left[i]);
-        }
-        
-        int minright=Integer.MAX_VALUE;
-        for(int i=0;i<right.length;i++)
-        {
-            minright=Math.min(minright,right[i]);
-        }
-        
-        int l=maxleft==Integer.MIN_VALUE?0:maxleft;
-        int r=minright==Integer.MAX_VALUE?0:(n-minright);
-        
-        return Math.max(l,r);
+         int lmax = Integer.MIN_VALUE, rmax = Integer.MIN_VALUE;
+        for(int i : left) if(lmax < i) lmax = i;
+        for(int i : right) if(rmax < n - i) rmax = n - i;
+        return Math.max(lmax, rmax);
     }
 }
