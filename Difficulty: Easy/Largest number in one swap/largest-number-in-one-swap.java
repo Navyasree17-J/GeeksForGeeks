@@ -1,29 +1,29 @@
 class Solution {
     public String largestSwap(String s) {
         // code here
-        char maxVal = '0';
-        int valIdx = -1;
-        for(int i = 0; i < s.length(); i++) {
-            char c = s.charAt(i);
-            if(c >= maxVal) {
-                maxVal = c;
-                valIdx = i;
+        int n = s.length();
+        StringBuilder sb = new StringBuilder(s);
+        int index1 = -1, index2 = -1;
+        int i = n - 1;
+        for(int j=n-1;j>=0;j--) {
+            char ch1 = s.charAt(j);
+            char ch2 = s.charAt(i);
+            
+            if(ch1>ch2) {
+                i = j;
+            } else if(ch1<ch2) {
+                index1 = i;
+                index2 = j;
             }
         }
         
-        StringBuilder result = new StringBuilder(s);
+        if(index1==-1)
+            return sb.toString();
         
-        for(int i = 0; i < s.length(); i++) {
-            char c = s.charAt(i);
-            if(i != valIdx && maxVal != c) {
-                char d = result.charAt(i);
-                result.setCharAt(i,maxVal);
-                result.setCharAt(valIdx,d);
-                break;
-            }
-        }
-        
-        
-        return result.toString().compareTo(s) >=0 ?result.toString():s;
+        char ch1 = sb.charAt(index1);
+        char ch2 = sb.charAt(index2);
+        sb.setCharAt(index1, ch2);
+        sb.setCharAt(index2, ch1);
+        return sb.toString();
     }
 }
