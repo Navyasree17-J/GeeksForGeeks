@@ -1,74 +1,45 @@
-//{ Driver Code Starts
-import java.io.*;
-import java.lang.*;
-import java.util.*;
-
-class GFG {
-    public static void main(String[] args) throws IOException {
-        Scanner sc = new Scanner(System.in);
-        int t = sc.nextInt();
-
-        while (t-- > 0) {
-            int n = sc.nextInt();
-            int m = sc.nextInt();
-
-            int mat[][] = new int[n][m];
-            for (int i = 0; i < n; i++) {
-                for (int j = 0; j < m; j++) mat[i][j] = sc.nextInt();
-            }
-            Solution obj = new Solution();
-            int ans = obj.orangesRotting(mat);
-            System.out.println(ans);
-            System.out.println("~");
-        }
-    }
-}
-// } Driver Code Ends
-
-
 class Solution {
-    public int orangesRotting(int[][] mat) {
-        int rows = mat.length;
-        int cols = mat[0].length;
-        int[] dirX = {-1,1,0,0};
-        int[] dirY = {0,0,-1,1};
-        Queue<int[]> queue = new LinkedList<>();
-        int freshCount = 0;
-        for(int i=0;i<rows;i++){
-            for(int j=0; j<cols;j++){
-                if(mat[i][j]==2){
-                    queue.add(new int[]{i,j});
-                }else if (mat[i][j]==1){
-                    freshCount++;
+    public int orangesRot(int[][] mat) {
+        // code here
+         int cnt = 0;
+        int n = mat.length, m = mat[0].length;
+        boolean[][] vis = new boolean[n][m];
+        Queue<int[]> q = new ArrayDeque<>();
+        
+        
+        int[][] dirs = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}};
+
+        for (int i = 0; i < n; ++i) {
+            for (int j = 0; j < m; ++j) {
+                if (mat[i][j] == 2) {
+                    q.offer(new int[] {i, j, 0});
+                    vis[i][j] = true;
+                }
+                if (mat[i][j] == 1)
+                    cnt++;
+            }
+        }
+        
+        int time = 0, cf = 0;
+        while (!q.isEmpty()) {
+            int r = q.peek()[0];
+            int c = q.peek()[1];
+            int t = q.peek()[2];
+            q.poll();
+            
+            time = Math.max(time, t);
+            
+            for (int i = 0; i < dirs.length; ++i) {
+                int nr = r + dirs[i][0];
+                int nc = c + dirs[i][1];
+                if (nr >= 0 && nr < n && nc >= 0 && nc < m && !vis[nr][nc] && mat[nr][nc] == 1) {
+                    q.offer (new int[] {nr, nc, t + 1});
+                    vis[nr][nc] = true;
+                    cf++;
                 }
             }
         }
-        if(freshCount==0){
-            return 0;
-        }
-        int time =0;
-        while(!queue.isEmpty()){
-            int size = queue.size();
-            boolean rotThisTurn=false;
-            for(int i=0; i<size; i++){
-                int[] current = queue.poll();
-                int x = current[0];
-                int y = current[1];
-                for(int j=0; j<4; j++){
-                    int newX = x+dirX[j];
-                    int newY = y+dirY[j];
-                    if(newX >= 0 && newX<rows && newY >= 0 && newY < cols && mat[newX][newY]==1){
-                        mat[newX][newY]=2;
-                        freshCount--;
-                        queue.add(new int[]{newX, newY});
-                        rotThisTurn=true;
-                    }
-                }
-            }
-            if(rotThisTurn){
-                time++;
-            }
-        }
-        return freshCount==0 ? time: -1;
+        
+        return ((cf != cnt) ? -1 : time);
     }
 }
