@@ -1,111 +1,148 @@
-//{ Driver Code Starts
-import java.util.*;
-
-public class Main {
-    public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
-        int tc = sc.nextInt();
-        while (tc-- > 0) {
-            int V = sc.nextInt();
-            int E = sc.nextInt();
-            int[][] edges = new int[E][2];
-            for (int i = 0; i < E; i++) {
-                edges[i][0] = sc.nextInt();
-                edges[i][1] = sc.nextInt();
-            }
-
-            Solution obj = new Solution();
-            ArrayList<Integer> ans = obj.articulationPoints(V, edges);
-            Collections.sort(ans);
-            for (int val : ans) {
-                System.out.print(val + " ");
-            }
-            System.out.println();
-            System.out.println("~");
-        }
-    }
-}
-// } Driver Code Ends
-
-
 class Solution {
     static ArrayList<Integer> articulationPoints(int V, int[][] edges) {
-          ArrayList<ArrayList<Integer>> graph = new ArrayList<>();
-        for (int i = 0; i < V; i++) {
-            graph.add(new ArrayList<>());
-        }
-        
-        for (int[] edge : edges) {
-            int u = edge[0];
-            int v = edge[1];
-            graph.get(u).add(v);
-            graph.get(v).add(u);
-        }
+        // code here
+        ArrayList<ArrayList<Integer>>adj=new ArrayList<>();
 
-        // Step 2: Initialize the necessary arrays
-        int[] disc = new int[V];  // discovery times of visited vertices
-        int[] low = new int[V];   // earliest visited vertex reachable
-        int[] parent = new int[V]; // parent vertices in DFS tree
-        boolean[] ap = new boolean[V]; // articulation points array
+    for(int i=0;i<V;i++)
 
-        Arrays.fill(disc, -1); // Initialize all discovery times to -1
-        Arrays.fill(parent, -1); // Initialize parent of all vertices to -1
-        
-        // Step 3: Initialize DFS variables
-        int time = 0; // global time for DFS
-        // Step 4: Run DFS from all unvisited vertices (in case of disconnected graph)
-        for (int i = 0; i < V; i++) {
-            if (disc[i] == -1) {
-                dfs(i, disc, low, parent, ap, graph, time);
-            }
-        }
+    adj.add(new ArrayList<>());
 
-        // Step 5: Collect the articulation points
-        ArrayList<Integer> result = new ArrayList<>();
-        for (int i = 0; i < V; i++) {
-            if (ap[i]) {
-                result.add(i);
-            }
-        }
+    for(int[]e:edges){
 
-        // If no articulation points were found, return {-1}
-        if (result.isEmpty()) {
-            result.add(-1);
-        }
-        
-        return result;
+        adj.get(e[0]).add(e[1]);
+
+        adj.get(e[1]).add(e[0]);
+
     }
 
-    // Helper method to perform DFS and find articulation points
-    private static void dfs(int u, int[] disc, int[] low, int[] parent, boolean[] ap, ArrayList<ArrayList<Integer>> graph, int time) {
-        // Initialize discovery time and low value
-        disc[u] = low[u] = ++time;
-        int children = 0;
+        int[] disc = new int[V];
 
-        // Visit all neighbors of vertex u
-        for (int v : graph.get(u)) {
-            if (disc[v] == -1) {  // If v is not visited yet
-                parent[v] = u;
-                children++;
-                dfs(v, disc, low, parent, ap, graph, time);
+        int[] low = new int[V];
 
-                // Check if the subtree rooted at v has a connection back to one of the ancestors of u
-                low[u] = Math.min(low[u], low[v]);
+        int[] parent = new int[V];
 
-                // u is an articulation point if it's the root and has more than one child
-                if (parent[u] == -1 && children > 1) {
-                    ap[u] = true;
+        int[] childCount = new int[V];
+
+        int[] nextNeighborIdx = new int[V]; // Tracks which neighbor to visit next
+
+        boolean[] isArticulation = new boolean[V];
+
+        int timer = 0;
+
+ 
+
+        Arrays.fill(disc, -1);
+
+        Arrays.fill(parent, -1);
+
+ 
+
+        for (int i = 0; i < V; i++) {
+
+            if (disc[i] == -1) {
+
+                Stack<Integer> stack = new Stack<>();
+
+                stack.push(i);
+
+                disc[i] = low[i] = ++timer;
+
+ 
+
+                while (!stack.isEmpty()) {
+
+                    int u = stack.peek();
+
+                    ArrayList<Integer> neighbors = adj.get(u);
+
+ 
+
+                    if (nextNeighborIdx[u] < neighbors.size()) {
+
+                        int v = neighbors.get(nextNeighborIdx[u]++);
+
+                        
+
+                        if (v == parent[u]) continue;
+
+ 
+
+                        if (disc[v] == -1) {
+
+                            // Tree Edge
+
+                            parent[v] = u;
+
+                            childCount[u]++;
+
+                            disc[v] = low[v] = ++timer;
+
+                            stack.push(v);
+
+                        } else {
+
+                            // Back Edge
+
+                            low[u] = Math.min(low[u], disc[v]);
+
+                        }
+
+                    } else {
+
+                        // Post-order processing (Backtracking)
+
+                        stack.pop();
+
+                        if (!stack.isEmpty()) {
+
+                            int p = stack.peek();
+
+                            low[p] = Math.min(low[p], low[u]);
+
+                            
+
+                            // Check articulation point condition for non-root
+
+                            if (parent[p] != -1 && low[u] >= disc[p]) {
+
+                                isArticulation[p] = true;
+
+                            }
+
+                        }
+
+                    }
+
                 }
 
-                // u is an articulation point if it's not the root and low value of one of its child is more
-                if (parent[u] != -1 && low[v] >= disc[u]) {
-                    ap[u] = true;
+                
+
+                // Root case: Articulation if it has > 1 child in DFS tree
+
+                if (childCount[i] > 1) {
+
+                    isArticulation[i] = true;
+
                 }
+
             }
-            // Update low[u] for back edge
-            else if (v != parent[u]) {
-                low[u] = Math.min(low[u], disc[v]);
-            }
+
         }
+
+ 
+
+        ArrayList<Integer> result = new ArrayList<>();
+
+        for (int i = 0; i < V; i++) {
+
+            if (isArticulation[i]) result.add(i);
+
+        }
+
+        
+
+        if (result.isEmpty()) result.add(-1);
+
+        return result;
     }
 }
